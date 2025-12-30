@@ -64,6 +64,9 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/v1/auth', require('./modules/auth/routes/auth.routes'));
+app.use('/api/v1/pets', require('./modules/pets/routes/pet.routes'));
+app.use('/api/v1/businesses', require('./modules/businesses/routes/business.routes'));
+app.use('/api/v1/users', require('./modules/users/routes/user.routes'));
 
 // Welcome route
 app.get('/', (req, res) => {

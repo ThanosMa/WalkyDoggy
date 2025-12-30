@@ -11,6 +11,9 @@
           
           <template v-if="isAuthenticated">
             <router-link to="/dashboard">Dashboard</router-link>
+            <router-link to="/pets">My Pets</router-link>
+            <router-link to="/profile">Profile</router-link>
+            <router-link to="/business">Business</router-link>
             <button @click="handleLogout" class="btn-logout">Logout</button>
           </template>
           <template v-else>
@@ -36,12 +39,14 @@
 <script>
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
 import { useAuthStore } from './stores/auth';
 
 export default {
   name: 'App',
   setup() {
     const router = useRouter();
+    const toast = useToast();
     const authStore = useAuthStore();
 
     const isAuthenticated = computed(() => authStore.isAuthenticated);
@@ -53,6 +58,7 @@ export default {
 
     const handleLogout = async () => {
       await authStore.logout();
+      toast.info('You have been logged out. See you soon! 👋');
       router.push('/');
     };
 

@@ -50,6 +50,47 @@ const routes = [
     component: () => import('../views/Dashboard.vue'),
     meta: { requiresAuth: true },
   },
+  // Pet routes
+  {
+    path: '/pets',
+    name: 'MyPets',
+    component: () => import('../views/pets/MyPets.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/pets/add',
+    name: 'AddPet',
+    component: () => import('../views/pets/PetForm.vue'),
+    meta: { requiresAuth: true },
+    // No petId prop = add mode
+  },
+  {
+    path: '/pets/:id',
+    name: 'PetDetails',
+    component: () => import('../views/pets/PetDetails.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/pets/:id/edit',
+    name: 'EditPet',
+    component: () => import('../views/pets/PetForm.vue'),
+    meta: { requiresAuth: true },
+    props: route => ({ petId: route.params.id }),  // Pass petId = edit mode
+  },
+  // Profile routes
+  {
+    path: '/profile',
+    name: 'MyProfile',
+    component: () => import('../views/profile/MyProfile.vue'),
+    meta: { requiresAuth: true },
+  },
+  // Business routes
+  {
+    path: '/business',
+    name: 'MyBusiness',
+    component: () => import('../views/business/MyBusiness.vue'),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({

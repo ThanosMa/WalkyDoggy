@@ -35,6 +35,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
     // Attach user to request
     req.user = decoded;
+    req.user._id = decoded.sub; // Add _id for easier access
     req.user.email = user.email;
 
     next();
@@ -89,6 +90,7 @@ const optionalAuth = asyncHandler(async (req, res, next) => {
     if (user && user.status === 'active') {
       // Attach user to request
       req.user = decoded;
+      req.user._id = decoded.sub; // Add _id for easier access
       req.user.email = user.email;
     }
   } catch (error) {

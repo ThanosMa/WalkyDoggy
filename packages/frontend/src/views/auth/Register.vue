@@ -119,12 +119,14 @@
 <script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
 import { useAuthStore } from '@/stores/auth';
 
 export default {
   name: 'Register',
   setup() {
     const router = useRouter();
+    const toast = useToast();
     const authStore = useAuthStore();
 
     const formData = ref({
@@ -149,12 +151,14 @@ export default {
       // Client-side validation
       if (formData.value.password !== formData.value.confirmPassword) {
         error.value = 'Passwords do not match';
+        toast.error('Passwords do not match');
         loading.value = false;
         return;
       }
 
       if (formData.value.password.length < 6) {
         error.value = 'Password must be at least 6 characters long';
+        toast.error('Password must be at least 6 characters long');
         loading.value = false;
         return;
       }
@@ -163,15 +167,18 @@ export default {
         const response = await authStore.register(formData.value);
         
         // Show success message
-        alert('Registration successful! Please check your email to verify your account.');
+        toast.success('Account created! Please check your email to verify. 📧');
         
         // Redirect to dashboard
         router.push('/dashboard');
       } catch (err) {
         if (err.errors && Array.isArray(err.errors)) {
           errors.value = err.errors;
+          toast.error('Please fix the validation errors');
         } else {
-          error.value = err.message || 'Registration failed. Please try again.';
+          const errorMessage = err.message || 'Registration failed. Please try again.';
+          error.value = errorMessage;
+          toast.error(errorMessage);
         }
       } finally {
         loading.value = false;

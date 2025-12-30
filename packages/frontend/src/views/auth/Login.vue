@@ -59,12 +59,14 @@
 <script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
 import { useAuthStore } from '@/stores/auth';
 
 export default {
   name: 'Login',
   setup() {
     const router = useRouter();
+    const toast = useToast();
     const authStore = useAuthStore();
 
     const formData = ref({
@@ -81,11 +83,14 @@ export default {
 
       try {
         await authStore.login(formData.value);
+        toast.success('Welcome back! 🐾');
         
         // Redirect to dashboard or home
         router.push('/dashboard');
       } catch (err) {
-        error.value = err.message || 'Login failed. Please check your credentials.';
+        const errorMessage = err.message || 'Login failed. Please check your credentials.';
+        error.value = errorMessage;
+        toast.error(errorMessage);
       } finally {
         loading.value = false;
       }
