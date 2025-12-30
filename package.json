@@ -1,0 +1,43 @@
+{
+  "name": "walkydoggy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pet care service platform connecting pet owners with professional pet care businesses",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=packages/backend",
+    "dev:frontend": "npm run serve --workspace=packages/frontend",
+    "install:all": "npm install && npm install --workspaces",
+    "clean": "npm run clean --workspaces && rm -rf node_modules",
+    "test": "npm test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:reset": "docker-compose down -v && docker-compose up -d"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/walkydoggy.git"
+  },
+  "keywords": [
+    "pet-care",
+    "dog-walking",
+    "pet-services",
+    "booking",
+    "marketplace"
+  ],
+  "author": "WalkyDoggy Team",
+  "license": "MIT"
+}
+

@@ -1,0 +1,11 @@
+# Copy this file to .env before running the frontend
+
+VITE_API_URL=http://localhost:3000/api/v1
+VITE_SOCKET_URL=http://localhost:3000
+
+# Optional (leave empty for basic development)
+VITE_MAPBOX_TOKEN=
+VITE_STRIPE_PUBLIC_KEY=
+VITE_POSTHOG_KEY=
+VITE_SENTRY_DSN=
+

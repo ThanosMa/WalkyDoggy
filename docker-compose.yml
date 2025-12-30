@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:7
+    container_name: walkydoggy-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=walkydoggy
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - walkydoggy-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/walkydoggy --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: walkydoggy-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - walkydoggy-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO (S3-compatible storage)
+  minio:
+    image: minio/minio:latest
+    container_name: walkydoggy-minio
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin123
+    volumes:
+      - minio-data:/data
+    networks:
+      - walkydoggy-network
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # MailHog (Email testing)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: walkydoggy-mailhog
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - walkydoggy-network
+
+  # MongoDB Express (Database UI)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: walkydoggy-mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017/
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin123
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+    networks:
+      - walkydoggy-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  # Redis Commander (Redis UI)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: walkydoggy-redis-commander
+    ports:
+      - "8082:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    networks:
+      - walkydoggy-network
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  mongo-data:
+    driver: local
+  redis-data:
+    driver: local
+  minio-data:
+    driver: local
+
+networks:
+  walkydoggy-network:
+    driver: bridge
+
+# To use this docker-compose file:
+#
+# Start all services:
+#   docker-compose up -d
+#
+# View logs:
+#   docker-compose logs -f
+#
+# Stop all services:
+#   docker-compose down
+#
+# Stop and remove all data:
+#   docker-compose down -v
+#
+# Service URLs:
+#   - MongoDB: mongodb://localhost:27017/walkydoggy
+#   - Redis: redis://localhost:6379
+#   - MinIO API: http://localhost:9000
+#   - MinIO Console: http://localhost:9001 (minioadmin/minioadmin123)
+#   - MailHog SMTP: localhost:1025
+#   - MailHog UI: http://localhost:8025
+#   - MongoDB Express: http://localhost:8081 (admin/admin123)
+#   - Redis Commander: http://localhost:8082
+

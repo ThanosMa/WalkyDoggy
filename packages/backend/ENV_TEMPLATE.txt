@@ -1,0 +1,40 @@
+# Copy this file to .env before running the backend
+
+# Server Configuration
+NODE_ENV=development
+PORT=3000
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/walkydoggy
+REDIS_URL=redis://localhost:6379
+
+# JWT (Generate secure keys for production)
+JWT_SECRET=change-this-to-a-secure-random-string
+JWT_REFRESH_SECRET=change-this-to-another-secure-random-string
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+# Storage (Local for Development)
+STORAGE_TYPE=local
+UPLOAD_DIR=./uploads
+
+# Email (MailHog for Development)
+EMAIL_SERVICE=mailhog
+MAILHOG_HOST=localhost
+MAILHOG_PORT=1025
+FROM_EMAIL=noreply@walkydoggy.local
+FROM_NAME=WalkyDoggy
+
+# CORS
+ALLOWED_ORIGINS=http://localhost:8080,http://localhost:19006
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# Optional (Leave empty for basic development)
+STRIPE_SECRET_KEY=
+MAPBOX_ACCESS_TOKEN=
+POSTHOG_API_KEY=
+SENTRY_DSN=
+

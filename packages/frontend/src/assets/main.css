@@ -1,0 +1,12 @@
+/* Global styles */
+body {
+  margin: 0;
+  background: #f9fafb;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
