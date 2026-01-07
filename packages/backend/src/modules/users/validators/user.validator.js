@@ -7,15 +7,15 @@ const updateProfileSchema = Joi.object({
     phoneNumber: Joi.string().trim(),
     avatar: Joi.string().uri(),
     address: Joi.object({
-      street: Joi.string(),
-      city: Joi.string(),
-      state: Joi.string(),
-      zipCode: Joi.string(),
-      country: Joi.string(),
+      street: Joi.string().allow(''),
+      city: Joi.string().allow(''),
+      state: Joi.string().allow(''),
+      zipCode: Joi.string().allow(''),
+      country: Joi.string().allow(''),
       coordinates: Joi.object({
         type: Joi.string().valid('Point'),
-        coordinates: Joi.array().items(Joi.number()).length(2), // [longitude, latitude]
-      }),
+        coordinates: Joi.array().items(Joi.number()).length(2).required(), // [longitude, latitude]
+      }).optional(),
     }),
   }),
   email: Joi.string().email(),

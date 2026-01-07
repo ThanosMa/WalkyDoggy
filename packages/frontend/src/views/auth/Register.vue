@@ -2,8 +2,9 @@
   <div class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
-        <h1>🐾 Join WalkyDoggy!</h1>
-        <p>Create your account to get started</p>
+        <div class="auth-logo">W</div>
+        <h1>Create your account</h1>
+        <p>Join WalkyDoggy to get started</p>
       </div>
 
       <form @submit.prevent="handleRegister" class="auth-form">
@@ -167,7 +168,7 @@ export default {
         const response = await authStore.register(formData.value);
         
         // Show success message
-        toast.success('Account created! Please check your email to verify. 📧');
+        toast.success('Account created. Please check your email to verify.');
         
         // Redirect to dashboard
         router.push('/dashboard');
@@ -222,15 +223,30 @@ export default {
   margin-bottom: 2rem;
 }
 
+.auth-logo {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin: 0 auto 1.5rem;
+}
+
 .auth-header h1 {
-  font-size: 2rem;
-  color: #1f2937;
+  font-size: 1.5rem;
+  color: #1a1a2e;
   margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .auth-header p {
   color: #6b7280;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .auth-form {

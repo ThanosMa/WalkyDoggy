@@ -4,17 +4,24 @@ const businessController = require('../controllers/business.controller');
 const businessValidator = require('../validators/business.validator');
 const { protect, authorize } = require('../../../shared/middleware/auth.middleware');
 
+// Import nested route handlers
+const serviceRoutes = require('../../services/routes/service.routes');
+const workerRoutes = require('../../workers/routes/worker.routes');
+
 // Public routes
 router.get('/search', businessValidator.validateSearchBusinesses, businessController.searchBusinesses);
 router.get('/nearby', businessController.getNearbyBusinesses);
 router.get('/featured', businessController.getFeaturedBusinesses);
+
+// Get my business - MUST be before /:id route to avoid matching "my" as an ID
+// This route requires authentication
+router.get('/my/profile', protect, businessController.getMyBusiness);
+
+// Public route for getting business by ID
 router.get('/:id', businessController.getBusinessById);
 
-// Protected routes - requires authentication
+// Protected routes - requires authentication for all routes below
 router.use(protect);
-
-// Get my business
-router.get('/my/profile', businessController.getMyBusiness);
 
 // Create business (business users only)
 router.post('/', authorize('business'), businessValidator.validateCreateBusiness, businessController.createBusiness);
@@ -33,6 +40,11 @@ router.put('/:id/operating-hours', businessValidator.validateUpdateOperatingHour
 
 // Stripe account
 router.put('/:id/stripe', businessController.updateStripeAccount);
+
+// Nested routes for services and workers
+// :businessId will be passed to the nested routers via mergeParams
+router.use('/:businessId/services', serviceRoutes);
+router.use('/:businessId/workers', workerRoutes);
 
 module.exports = router;
 

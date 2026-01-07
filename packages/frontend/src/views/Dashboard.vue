@@ -2,20 +2,20 @@
   <div class="dashboard">
     <div class="container">
       <div class="dashboard-header">
-        <h1>👋 Welcome, {{ userFullName }}!</h1>
+        <h1>Welcome, {{ userFullName }}</h1>
         <p v-if="user" class="user-type-badge" :class="`badge-${user.userType}`">
           {{ userTypeLabel }}
         </p>
       </div>
 
       <div v-if="!isEmailVerified" class="verification-banner">
-        <strong>📧 Please verify your email</strong>
-        <p>We've sent a verification link to {{ user?.email }}. Please check your inbox.</p>
+        <strong>Please verify your email</strong>
+        <p>We've sent a verification link to {{ user?.email }}. Check your inbox.</p>
       </div>
 
       <div class="dashboard-content">
         <div class="welcome-card">
-          <h2>🎉 Welcome to WalkyDoggy!</h2>
+          <h2>Welcome to WalkyDoggy</h2>
           <p>Your account has been created successfully.</p>
           
           <div class="account-info">
@@ -32,7 +32,7 @@
               <div class="info-item">
                 <strong>Email Verified:</strong>
                 <span :class="isEmailVerified ? 'text-success' : 'text-warning'">
-                  {{ isEmailVerified ? '✅ Verified' : '⚠️ Not Verified' }}
+                  {{ isEmailVerified ? 'Verified' : 'Not Verified' }}
                 </span>
               </div>
               <div class="info-item">
@@ -43,7 +43,7 @@
           </div>
 
           <div class="next-steps">
-            <h3>🚀 Next Steps</h3>
+            <h3>Next Steps</h3>
             <ul v-if="isPetOwner">
               <li>Add your pets to your profile</li>
               <li>Search for pet care services near you</li>

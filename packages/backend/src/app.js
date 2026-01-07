@@ -67,6 +67,8 @@ app.use('/api/v1/auth', require('./modules/auth/routes/auth.routes'));
 app.use('/api/v1/pets', require('./modules/pets/routes/pet.routes'));
 app.use('/api/v1/businesses', require('./modules/businesses/routes/business.routes'));
 app.use('/api/v1/users', require('./modules/users/routes/user.routes'));
+app.use('/api/v1/services', require('./modules/services/routes/service.routes'));
+app.use('/api/v1/workers', require('./modules/workers/routes/worker.routes'));
 
 // Welcome route
 app.get('/', (req, res) => {

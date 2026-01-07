@@ -75,14 +75,14 @@ const businessSchema = new mongoose.Schema(
         },
       },
     },
+    // Service area is optional - only set if business wants to define coverage area
     serviceArea: {
       type: {
         type: String,
         enum: ['Polygon', 'Point'],
-        default: 'Point',
       },
       coordinates: {
-        type: [[[Number]]], // Polygon coordinates or Point
+        type: mongoose.Schema.Types.Mixed, // Can be [lng, lat] for Point or [[[]]] for Polygon
       },
       radiusInKm: {
         type: Number,
@@ -232,7 +232,8 @@ const businessSchema = new mongoose.Schema(
 
 // Geospatial indexes
 businessSchema.index({ 'address.coordinates': '2dsphere' });
-businessSchema.index({ serviceArea: '2dsphere' });
+// Note: serviceArea index removed - it's optional and may not always have valid geo data
+// If needed, create a sparse index: businessSchema.index({ serviceArea: '2dsphere' }, { sparse: true });
 
 // Text search index
 businessSchema.index({ name: 'text', description: 'text' });

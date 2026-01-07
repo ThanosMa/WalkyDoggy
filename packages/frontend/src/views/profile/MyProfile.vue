@@ -6,7 +6,12 @@
 
     <div v-if="loading" class="loading">Loading profile...</div>
 
-    <div v-else class="profile-container">
+    <div v-else-if="submitError && (!user || !user.profile)" class="error-message">
+      <p>{{ submitError }}</p>
+      <button @click="fetchProfile" class="btn btn-secondary">Try Again</button>
+    </div>
+
+    <div v-else-if="user && user.profile" class="profile-container">
       <!-- Profile Info Card -->
       <div class="profile-card">
         <div class="avatar-section">
@@ -22,9 +27,9 @@
         </div>
 
         <div class="info-section">
-          <h2>{{ user.profile?.firstName }} {{ user.profile?.lastName }}</h2>
-          <p class="email">{{ user.email }}</p>
-          <span class="badge" :class="user.userType">{{ formatUserType(user.userType) }}</span>
+          <h2>{{ user.profile?.firstName || '' }} {{ user.profile?.lastName || '' }}</h2>
+          <p class="email">{{ user.email || '' }}</p>
+          <span v-if="user.userType" class="badge" :class="user.userType">{{ formatUserType(user.userType) }}</span>
           <div class="verification-status">
             <span v-if="user.isEmailVerified" class="verified">✓ Email Verified</span>
             <span v-else class="unverified">✗ Email Not Verified</span>
@@ -84,7 +89,14 @@
           </div>
         </div>
 
-        <div v-if="submitError" class="error-message">{{ submitError }}</div>
+        <div v-if="submitError" class="error-message">
+          {{ submitError }}
+          <ul v-if="validationErrors.length" class="validation-errors">
+            <li v-for="error in validationErrors" :key="error.field">
+              <strong>{{ error.field }}:</strong> {{ error.message }}
+            </li>
+          </ul>
+        </div>
         <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
 
         <div class="form-actions">
@@ -122,16 +134,19 @@
 
 <script>
 import { ref, onMounted } from 'vue';
+import { useToast } from 'vue-toastification';
 import userService from '@/services/userService';
 
 export default {
   name: 'MyProfile',
   setup() {
-    const user = ref({});
+    const toast = useToast();
+    const user = ref(null);
     const loading = ref(true);
     const submitting = ref(false);
     const submitError = ref(null);
     const successMessage = ref(null);
+    const validationErrors = ref([]);
     const showAvatarModal = ref(false);
     const avatarUrl = ref('');
 
@@ -152,8 +167,29 @@ export default {
 
     const fetchProfile = async () => {
       try {
+        loading.value = true;
         const response = await userService.getMyProfile();
-        user.value = response.data;
+        
+        // Handle response structure: { success, message, data: user }
+        const userData = response.data || response;
+        
+        // Ensure profile object exists
+        if (!userData.profile) {
+          userData.profile = {
+            firstName: '',
+            lastName: '',
+            phoneNumber: '',
+            address: {
+              street: '',
+              city: '',
+              state: '',
+              zipCode: '',
+              country: '',
+            },
+          };
+        }
+        
+        user.value = userData;
         
         // Populate form
         formData.value.profile.firstName = user.value.profile.firstName || '';
@@ -168,6 +204,7 @@ export default {
         };
       } catch (err) {
         console.error('Error fetching profile:', err);
+        submitError.value = err.response?.data?.message || 'Failed to load profile';
       } finally {
         loading.value = false;
       }
@@ -178,16 +215,73 @@ export default {
         submitting.value = true;
         submitError.value = null;
         successMessage.value = null;
+        validationErrors.value = [];
 
-        const response = await userService.updateMyProfile(formData.value);
-        user.value = response.data;
-        successMessage.value = 'Profile updated successfully!';
+        // Clean up empty fields
+        const cleanData = {
+          profile: {
+            firstName: formData.value.profile.firstName,
+            lastName: formData.value.profile.lastName,
+          }
+        };
+
+        // Add phone number if not empty
+        if (formData.value.profile.phoneNumber) {
+          cleanData.profile.phoneNumber = formData.value.profile.phoneNumber;
+        }
+
+        // Add address if any field is filled
+        const hasAddress = formData.value.profile.address.street || 
+                          formData.value.profile.address.city || 
+                          formData.value.profile.address.state || 
+                          formData.value.profile.address.zipCode || 
+                          formData.value.profile.address.country;
+
+        if (hasAddress) {
+          cleanData.profile.address = {};
+          
+          if (formData.value.profile.address.street) {
+            cleanData.profile.address.street = formData.value.profile.address.street;
+          }
+          if (formData.value.profile.address.city) {
+            cleanData.profile.address.city = formData.value.profile.address.city;
+          }
+          if (formData.value.profile.address.state) {
+            cleanData.profile.address.state = formData.value.profile.address.state;
+          }
+          if (formData.value.profile.address.zipCode) {
+            cleanData.profile.address.zipCode = formData.value.profile.address.zipCode;
+          }
+          if (formData.value.profile.address.country) {
+            cleanData.profile.address.country = formData.value.profile.address.country;
+          }
+        }
+
+        console.log('🔍 Sending profile update:', cleanData);
+
+        const response = await userService.updateMyProfile(cleanData);
+        const userData = response.data || response;
         
-        setTimeout(() => {
-          successMessage.value = null;
-        }, 3000);
+        // Ensure profile object exists
+        if (!userData.profile) {
+          userData.profile = formData.value.profile;
+        }
+        
+        user.value = userData;
+        toast.success('Profile updated successfully! ✓');
       } catch (err) {
-        submitError.value = err.response?.data?.message || 'Failed to update profile';
+        console.error('❌ Profile update error:', err.response?.data);
+        const errorMessage = err.response?.data?.message || 'Failed to update profile';
+        submitError.value = errorMessage;
+        toast.error(errorMessage);
+        
+        // Display validation errors
+        if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+          validationErrors.value = err.response.data.errors;
+          err.response.data.errors.forEach(error => {
+            console.error('Validation error:', error.field, error.message);
+          });
+        }
       } finally {
         submitting.value = false;
       }
@@ -196,12 +290,20 @@ export default {
     const updateAvatar = async () => {
       try {
         const response = await userService.updateAvatar(avatarUrl.value);
-        user.value = response.data;
+        const userData = response.data || response;
+        
+        if (!userData.profile) {
+          userData.profile = user.value?.profile || {};
+        }
+        
+        user.value = userData;
+        toast.success('Avatar updated successfully! ✓');
         showAvatarModal.value = false;
         avatarUrl.value = '';
       } catch (err) {
         console.error('Error updating avatar:', err);
-        alert('Failed to update avatar');
+        const errorMessage = err.response?.data?.message || 'Failed to update avatar';
+        toast.error(errorMessage);
       }
     };
 
@@ -219,6 +321,7 @@ export default {
       submitting,
       submitError,
       successMessage,
+      validationErrors,
       formData,
       showAvatarModal,
       avatarUrl,
@@ -384,6 +487,15 @@ input:focus {
   border-radius: 6px;
   color: #c33;
   margin-bottom: 1rem;
+}
+
+.validation-errors {
+  margin-top: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.validation-errors li {
+  margin-bottom: 0.5rem;
 }
 
 .success-message {

@@ -27,10 +27,18 @@ const updateUserProfile = async (userId, updateData) => {
   if (updateData.profile) {
     Object.keys(updateData.profile).forEach(key => {
       if (key === 'address' && updateData.profile.address) {
-        user.profile.address = {
-          ...user.profile.address,
-          ...updateData.profile.address,
-        };
+        // Start with existing address or empty object
+        const currentAddress = user.profile.address || {};
+        
+        // Only update fields that are explicitly provided (not undefined)
+        Object.keys(updateData.profile.address).forEach(addressKey => {
+          if (updateData.profile.address[addressKey] !== undefined) {
+            if (!user.profile.address) {
+              user.profile.address = {};
+            }
+            user.profile.address[addressKey] = updateData.profile.address[addressKey];
+          }
+        });
       } else {
         user.profile[key] = updateData.profile[key];
       }

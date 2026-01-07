@@ -26,13 +26,20 @@ const getBusinessById = asyncHandler(async (req, res) => {
 
 /**
  * @desc    Get my business (logged in business owner)
- * @route   GET /api/v1/businesses/my-business
+ * @route   GET /api/v1/businesses/my/profile
  * @access  Private
  */
 const getMyBusiness = asyncHandler(async (req, res) => {
-  const business = await businessService.getBusinessByOwner(req.user._id);
-  
-  apiResponse.success(res, business, 'Business retrieved successfully');
+  try {
+    const business = await businessService.getBusinessByOwner(req.user._id);
+    apiResponse.success(res, business, 'Business retrieved successfully');
+  } catch (error) {
+    // If no business found, return 404 with clear message
+    if (error.message.includes('No business profile found')) {
+      return apiResponse.error(res, 'No business profile found. Create one to get started!', 404);
+    }
+    throw error;
+  }
 });
 
 /**

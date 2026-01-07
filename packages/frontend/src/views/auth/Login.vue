@@ -2,8 +2,9 @@
   <div class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
-        <h1>🐾 Welcome Back!</h1>
-        <p>Login to your WalkyDoggy account</p>
+        <div class="auth-logo">W</div>
+        <h1>Welcome back</h1>
+        <p>Sign in to your WalkyDoggy account</p>
       </div>
 
       <form @submit.prevent="handleLogin" class="auth-form">
@@ -83,7 +84,7 @@ export default {
 
       try {
         await authStore.login(formData.value);
-        toast.success('Welcome back! 🐾');
+        toast.success('Login successful');
         
         // Redirect to dashboard or home
         router.push('/dashboard');
@@ -130,15 +131,30 @@ export default {
   margin-bottom: 2rem;
 }
 
+.auth-logo {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin: 0 auto 1.5rem;
+}
+
 .auth-header h1 {
-  font-size: 2rem;
-  color: #1f2937;
+  font-size: 1.5rem;
+  color: #1a1a2e;
   margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .auth-header p {
   color: #6b7280;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .auth-form {

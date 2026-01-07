@@ -51,11 +51,15 @@ const userSchema = new mongoose.Schema(
           type: {
             type: String,
             enum: ['Point'],
-            default: 'Point',
           },
           coordinates: {
             type: [Number], // [longitude, latitude]
-            default: [0, 0],
+            validate: {
+              validator: function(v) {
+                return v && v.length === 2;
+              },
+              message: 'Coordinates must be an array of 2 numbers [longitude, latitude]'
+            }
           },
         },
       },
